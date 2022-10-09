@@ -1,70 +1,100 @@
-# Getting Started with Create React App
+# Wykres kursu walut
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Zadaniem aplikacji jest wyświetlanie danych dotyczących kursu walut korzystając z API.
+## Instalacja aplikacji
+W katalogu projektu można uruchomić
 
-## Available Scripts
+*npm start*
 
-In the project directory, you can run:
+Uruchamia to aplikację w trybie deweloperskim.
+Należy otworzyć http://localhost:3000, aby wyświetlić projekt w przeglądarce.
 
-### `npm start`
+Strona zostanie ponownie załadowana, gdy wprowadzone zostaną zmiany.
+Można również zobaczyć wszelkie błędy lint w konsoli.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Zastosowane technologie
+Aplikacja została stworzona za pomocą biblioteki JavaScript React.js. Style dodane są w języku CSS: Cascading Style Sheets. Testy E2E aplikacja wykonuje z pomocą Cypress.io.
+## Struktura aplikacji
+Drzewo aplikacji:
+W folderze **cypress** znajduje się plik o nazwie **spec.cy.js** z testem E2E aplikacji. 
 
-### `npm test`
+W folderze** src** znajdują się komponenty aplikacji, ich struktura prezenuje się jak poniżej:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+>index
+>>App
 
-### `npm run build`
+>>>Search
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+>>>Chart
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+>>>Charts
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+------------
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Aplikacja korzysta z dwóch rodzajów zapytań do API NBP. Podczas pierwszego ładowania pobiera dane o walucie EUR renderując jej wykres.
+Pobiera również w całości tabelę A kursów walut w celu wygenerowania listy kodów - ma to na celu ułatwienie użytkownikowi wybrania prawidłowego kodu.
+Podczas wyszukiwania kolejnych walut - następują kolejne zapytania do API dla konkretnych kodów walut.  Szczegółowe wyjaśnienie działania API znajduje się na stronie: http://api.nbp.pl/.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Rysowanie wykresów odbywa się za pomocą konstruowania adresu url. Więcej na temat wykresów przeczytać można tu: https://documentation.image-charts.com/line-charts/.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+------------
+ ## Komponenty
+ 
+Aplikacja została zbudowana na komponentach funkcyjnych. Zarządzanie stanem odbywa się poprzez Hooki useState.
 
-## Learn More
+------------
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### App
 
-### Code Splitting
+Główny komponent, w którym przechowywany jest stan aplikacji, zmienne oraz renderowane są pozostałe komponenty.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+------------
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+#### Zmienne
 
-### Making a Progressive Web App
+- **endTime** - oblicza datę wstecz od todayDate - parametr można zmieniać.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Wykres obejmuje 5 dni, ponieważ kursy walut obliczane są tylko w dni robocze. W celu zwiększenia zakresu wykresu należy w poniższym kodzie zamienić liczbę 6 na zgodną z preferencjami.
 
-### Advanced Configuration
+>>let endTime = new Date(todayDate.getTime() - **6** &#42; 24 &#42;  60 &#42;  60 &#42; 1000);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Format czasu, na którym pracuje aplikacja to międzynarodowy format ISO 8601. 
+Jest on wymagany podczas użycia API z kursami walut oraz API rysującego wykresy.
 
-### Deployment
+- **urls** - tablica z adresami url do multiwykresu
+- **code** - wyświetlany/wybrany aktualnie kod waluty
+- **codes** - tablica z wybranymi kodami do multiwykresu
+- **dates** - tablica z datami, które tworzą oś X wykresów
+- **values** - tablica z wartościami ostatnio wskazanej waluty
+- **multipleValues** - tablica z wartościami wszystkich wskazanych walut
+- **allCodes** - tablica gromadząca wszystkie kody walut z tabeli
+- **singleChartSource** - tworzy zmienną singleChartSource do generowania pojedyńczego wykresu
+- **source** - tworzy zmienną source do generowania multiwykresu
+- **chartVisibility** - przymuje wartość true dla widocznego wykresu pojedyńczego.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+------------
 
-### `npm run build` fails to minify
+#### Search
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Komponent, który zawiera w sobie okno wyszukiwania, przycisk szukania, przycisk zmiany wykresu oraz listę dostępnych kodów.
+
+#### Chart
+
+Komponent, który odpowiada za renderowanie wykresu pojedyńczego kursu. Pobiera dane z API NBP (http://api.nbp.pl/) dla konkretnej waluty oraz zakresu dni. Wykres rysowany jest za pomocą https://image-charts.com/. 
+
+#### Charts
+
+Komponent, który odpowiada za renderowanie wykresu wielu kursów. Pobiera dane z API NBP (http://api.nbp.pl/) dla konkretnej waluty oraz zakresu dni za każdym razem kiedy użytkownik wybierze walutę. Wykres rysowany jest za pomocą https://image-charts.com/.
+
+### Testy E2E
+
+Test wykonany w Cypress sprawdza podstawowe funkcjonalności aplikacji takie jak:
+- renderowanie się elementów po załadowaniu
+strony
+- działanie przycisków oraz paska wyszukiwania
+- prawidłowe ładowanie wykresów
